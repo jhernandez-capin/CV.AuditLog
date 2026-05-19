@@ -159,5 +159,40 @@ namespace CV.AuditLog.Tests
             Assert.Throws<ArgumentNullException>(() =>
                 new AuditLogger(new FakeRepository(), null));
         }
+
+        [Fact]
+        public void Log_ViewAction_DoesNotWriteToRepository()
+        {
+            var repo   = new FakeRepository();
+            var logger = new AuditLogger(repo, new FakeContextProvider());
+
+            logger.Log("Ticket", "1", AuditAction.View);
+
+            Assert.Empty(repo.Entries);
+        }
+
+        [Fact]
+        public void Log_ExportAction_DoesNotWriteToRepository()
+        {
+            var repo   = new FakeRepository();
+            var logger = new AuditLogger(repo, new FakeContextProvider());
+
+            logger.Log("Ticket", "1", AuditAction.Export);
+
+            Assert.Empty(repo.Entries);
+        }
+
+        [Fact]
+        public void Log_CreateUpdateDelete_AllWriteToRepository()
+        {
+            var repo   = new FakeRepository();
+            var logger = new AuditLogger(repo, new FakeContextProvider());
+
+            logger.Log("Ticket", "1", AuditAction.Create);
+            logger.Log("Ticket", "2", AuditAction.Update);
+            logger.Log("Ticket", "3", AuditAction.Delete);
+
+            Assert.Equal(3, repo.Entries.Count);
+        }
     }
 }

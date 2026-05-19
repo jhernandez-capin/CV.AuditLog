@@ -1,4 +1,5 @@
 using CV.AuditLog.Abstractions;
+using CV.AuditLog.Enums;
 using CV.AuditLog.Models;
 using Newtonsoft.Json;
 using System;
@@ -45,7 +46,12 @@ namespace CV.AuditLog
                     ChangedProperties = SerializeChangedProperties(oldValues, newValues),
                 };
 
-                _repository.Add(entry);
+                // ── File log (all events) ─────────────────────────────────────
+                WriteToFile(entry);
+
+                // ── Database (Create / Update / Delete only) ──────────────────
+                if (IsMutationAction(entry.Action))
+                    _repository.Add(entry);
             }
             catch (Exception ex)
             {
@@ -75,6 +81,26 @@ namespace CV.AuditLog
         }
 
         // ── Helpers ──────────────────────────────────────────────────────────────
+
+        private static void WriteToFile(AuditLogEntry entry)
+        {
+            AuditLogSetup.FileLogger
+                .ForContext("EntityName", entry.EntityName)
+                .ForContext("EntityId",   entry.EntityId)
+                .ForContext("Action",     entry.Action)
+                .ForContext("ModuleName", entry.ModuleName)
+                .ForContext("UserId",     entry.UserId)
+                .ForContext("UserName",   entry.UserName)
+                .ForContext("IpAddress",  entry.IpAddress)
+                .Information(
+                    "[Audit] {Action} | {EntityName}#{EntityId} | User: {UserName} | Module: {ModuleName}",
+                    entry.Action, entry.EntityName, entry.EntityId, entry.UserName, entry.ModuleName);
+        }
+
+        private static bool IsMutationAction(string action) =>
+            string.Equals(action, AuditAction.Create, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(action, AuditAction.Update, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(action, AuditAction.Delete, StringComparison.OrdinalIgnoreCase);
 
         private static string Serialize(object value)
         {
@@ -126,10 +152,7 @@ namespace CV.AuditLog
                     if (!Equals(oldVal, newVal))
                         result.Add(oldProp.Name);
                 }
-                catch
-                {
-                    // If a property getter throws, skip that property.
-                }
+                catch { }
             }
 
             return result;
