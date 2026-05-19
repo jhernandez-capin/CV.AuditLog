@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CV.AuditLog.Tests/CV.AuditLog.Tests.csproj" />
+  <Project Path="CV.AuditLog/CV.AuditLog.csproj" />
+</Solution>
