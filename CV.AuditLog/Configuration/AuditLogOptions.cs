@@ -44,6 +44,14 @@ namespace CV.AuditLog.Configuration
         public LogEventLevel MinimumLevel { get; set; } = LogEventLevel.Information;
 
         /// <summary>
+        /// Path for the error-only log file (Error level and above).
+        /// Serilog writes to this file in addition to <see cref="LogFilePath"/>.
+        /// Set to null or empty to disable the dedicated error file.
+        /// Default: "logs/errors-.log"
+        /// </summary>
+        public string ErrorLogFilePath { get; set; } = "logs/errors-.log";
+
+        /// <summary>
         /// Serilog output template for each log line.
         /// </summary>
         public string OutputTemplate { get; set; } =

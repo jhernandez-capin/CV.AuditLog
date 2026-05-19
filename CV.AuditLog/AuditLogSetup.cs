@@ -39,6 +39,21 @@ namespace CV.AuditLog
                     shared:                  false
                 );
 
+            // Second sink: errors only, separate file for fast incident monitoring.
+            if (!string.IsNullOrWhiteSpace(options.ErrorLogFilePath))
+            {
+                loggerConfig = loggerConfig.WriteTo.File(
+                    path:                    options.ErrorLogFilePath,
+                    rollingInterval:         options.RollingInterval,
+                    fileSizeLimitBytes:      options.FileSizeLimitBytes,
+                    rollOnFileSizeLimit:     options.RollOnFileSizeLimit,
+                    retainedFileCountLimit:  options.RetainedFileCountLimit,
+                    outputTemplate:          options.OutputTemplate,
+                    restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error,
+                    shared:                  false
+                );
+            }
+
             _fileLogger = loggerConfig.CreateLogger();
         }
 
