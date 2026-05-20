@@ -7,5 +7,6 @@ namespace CV.AuditLog.Enums
         public const string Delete = "Delete";
         public const string View   = "View";
         public const string Export = "Export";
+        public const string Download = "Download";
     }
 }
