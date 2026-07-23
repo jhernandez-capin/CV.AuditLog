@@ -8,5 +8,7 @@ namespace CV.AuditLog.Enums
         public const string View   = "View";
         public const string Export = "Export";
         public const string Download = "Download";
+        public const string Attach = "Attach";
+        public const string Upload = "Upload";
     }
 }

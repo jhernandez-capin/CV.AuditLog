@@ -16,5 +16,6 @@ namespace CV.AuditLog.Models
         public string   OldValues          { get; set; } = string.Empty;
         public string   NewValues          { get; set; } = string.Empty;
         public string   ChangedProperties  { get; set; } = string.Empty;
+        public string   Description        { get; set; } = string.Empty;
     }
 }

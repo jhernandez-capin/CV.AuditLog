@@ -27,7 +27,8 @@ namespace CV.AuditLog
             string action,
             object oldValues  = null,
             object newValues  = null,
-            string moduleName = null)
+            string moduleName = null,
+            string description = null)
         {
             try
             {
@@ -44,13 +45,14 @@ namespace CV.AuditLog
                     OldValues         = Serialize(oldValues),
                     NewValues         = Serialize(newValues),
                     ChangedProperties = SerializeChangedProperties(oldValues, newValues),
+                    Description       = description ?? string.Empty,
                 };
 
                 // ── File log (all events) ─────────────────────────────────────
                 WriteToFile(entry);
 
-                // ── Database (Create / Update / Delete only) ──────────────────
-                if (IsMutationAction(entry.Action))
+                // ── Database (Create / Update / Delete / Download / Export) ───
+                if (IsPersistedAction(entry.Action))
                     _repository.Add(entry);
             }
             catch (Exception ex)
@@ -97,10 +99,16 @@ namespace CV.AuditLog
                     entry.Action, entry.EntityName, entry.EntityId, entry.UserName, entry.ModuleName);
         }
 
-        private static bool IsMutationAction(string action) =>
-            string.Equals(action, AuditAction.Create, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(action, AuditAction.Update, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(action, AuditAction.Delete, StringComparison.OrdinalIgnoreCase);
+        // View is intentionally excluded: the global action filter tags every GET on
+        // [Auditable] controllers as View and persisting it would flood the table.
+        private static bool IsPersistedAction(string action) =>
+            string.Equals(action, AuditAction.Create,   StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(action, AuditAction.Update,   StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(action, AuditAction.Delete,   StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(action, AuditAction.Download, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(action, AuditAction.Export,   StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(action, AuditAction.Attach,   StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(action, AuditAction.Upload,   StringComparison.OrdinalIgnoreCase);
 
         private static string Serialize(object value)
         {

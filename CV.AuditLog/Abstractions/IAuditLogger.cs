@@ -21,7 +21,8 @@ namespace CV.AuditLog.Abstractions
             string action,
             object oldValues  = null,
             object newValues  = null,
-            string moduleName = null);
+            string moduleName = null,
+            string description = null);
 
         IEnumerable<AuditLogEntry> GetLogs(
             string    entityName = null,
